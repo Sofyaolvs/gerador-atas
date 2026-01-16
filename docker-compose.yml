@@ -1,0 +1,28 @@
+services:
+  mongodb:
+    image: mongo:7.0.12
+    environment:
+      - TZ=America/Fortaleza
+    container_name: gerador-atas-db
+    ports:
+      - '27017:27017'
+    volumes:
+      - ./volumes/mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+  api:
+      build: .
+      ports:
+        - '3001:3000'
+      env_file:
+        - .env
+      depends_on:
+        mongodb:
+          condition: service_healthy
+
+volumes:
+  mongodb_data:
